@@ -32,7 +32,7 @@ else
 fi
 echo "Installing java $JAVA_VER"
 
-if [ "$(ls -A $DEST/$JAVA_VER >> /dev/null 2>&1)" ]; then
+if [ "$(ls -A $DEST/$JAVA_VER 2> /dev/null)" ]; then
     read -p "$DEST/$JAVA_VER containing files, do you want to delete them? (y/n) " ANS
     if [[ x$ANS = xy ]]; then
         if [[ $(dirname $(realpath $1)) == "$DEST/$JAVA_VER" ]]; then
@@ -47,10 +47,10 @@ if [ "$(ls -A $DEST/$JAVA_VER >> /dev/null 2>&1)" ]; then
         echo "Operation canceled"
         exit 0
     fi
-else
-    mkdir -pv $DEST
-    [ -z $JDK_FILE ] &&JDK_FILE=$(realpath $1);
 fi
+mkdir -pv $DEST
+[ -z $JDK_FILE ] &&JDK_FILE=$(realpath $1);
+
 
 cd $DEST
 
