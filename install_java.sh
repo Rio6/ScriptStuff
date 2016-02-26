@@ -19,29 +19,26 @@ if [[ $# < 1 ]]; then
     exit 1
 fi
 
-if [ -z "$1" ]; then
+if [ ! -f "$1" ]; then
     echo "Error: $1: file not found" 1>&2
     exit 1
 fi
 
-JAVA_VER=$(tar -tf $1 | head -n1 | tr -d "/")
+if file $1 | grep gzip > /dev/null ; then
+    JAVA_VER=$(tar -tf $1 | head -n1 | tr -d "/")
+else
+    echo "$1 is not a valid gzip file" 1>&2
+    exit 1
+fi
 echo "Installing java $JAVA_VER"
 
-if [ ! -d $DEST ]; then
-    echo "$DEST not exist, creating..."
-    mkdir -pv $DEST
-fi
-
-cd $DEST
-if [ "$(ls -A $DEST/$JAVA_VER)" ]; then
+if [ "$(ls -A $DEST/$JAVA_VER >> /dev/null 2>&1)" ]; then
     read -p "$DEST/$JAVA_VER containing files, do you want to delete them? (y/n) " ANS
-    if [ x$ANS = xy ]; then
-        if [[ $(dirname $(readlink -f $1)) == "$DEST/$JAVA_VER" ]]; then
+    if [[ x$ANS = xy ]]; then
+        if [[ $(dirname $(realpath $1)) == "$DEST/$JAVA_VER" ]]; then
             JDK_FILE="/tmp/$(basename $1)"
             echo "Copying $1 to $JDK_FILE"
             cp -v $1 $JDK_FILE
-        else
-            JDK_FILE=$(readlink -f $1)
         fi
 
         echo "Deleting files..."
@@ -50,7 +47,12 @@ if [ "$(ls -A $DEST/$JAVA_VER)" ]; then
         echo "Operation canceled"
         exit 0
     fi
+else
+    mkdir -pv $DEST
+    [ -z $JDK_FILE ] &&JDK_FILE=$(realpath $1);
 fi
+
+cd $DEST
 
 echo Extracting $JDK_FILE to $DEST...
 cp -v $JDK_FILE $DEST
