@@ -30,17 +30,15 @@ else
     echo "$1 is not a valid gzip file" 1>&2
     exit 1
 fi
+
 echo "Installing java $JAVA_VER"
+
+JDK_FILE=$(realpath $1);
+cp -v $JDK_FILE $DEST
 
 if [ "$(ls -A $DEST/$JAVA_VER 2> /dev/null)" ]; then
     read -p "$DEST/$JAVA_VER containing files, do you want to delete them? (y/n) " ANS
     if [[ x$ANS = xy ]]; then
-        if [[ $(dirname $(realpath $1)) == "$DEST/$JAVA_VER" ]]; then
-            JDK_FILE="/tmp/$(basename $1)"
-            echo "Copying $1 to $JDK_FILE"
-            cp -v $1 $JDK_FILE
-        fi
-
         echo "Deleting files..."
         rm -r "$DEST/$JAVA_VER"
     else
@@ -49,13 +47,10 @@ if [ "$(ls -A $DEST/$JAVA_VER 2> /dev/null)" ]; then
     fi
 fi
 mkdir -pv $DEST
-[ -z $JDK_FILE ] &&JDK_FILE=$(realpath $1);
-
 
 cd $DEST
 
 echo Extracting $JDK_FILE to $DEST...
-cp -v $JDK_FILE $DEST
 tar -xf $(basename $JDK_FILE)
 
 if [[ $(dirname $JDK_FILE) == "/tmp" ]]; then
