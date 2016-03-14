@@ -37,7 +37,7 @@ JDK_FILE=$(realpath $1);
 cp -v $JDK_FILE $DEST
 
 if [ "$(ls -A $DEST/$JAVA_VER 2> /dev/null)" ]; then
-    read -p "$DEST/$JAVA_VER containing files, do you want to delete them? (y/n) " ANS
+    read -p "$DEST/$JAVA_VER containing files, do you want to delete them? (y/n) [n] " ANS
     if [[ x$ANS = xy ]]; then
         echo "Deleting files..."
         rm -r "$DEST/$JAVA_VER"
@@ -58,13 +58,26 @@ if [[ $(dirname $JDK_FILE) == "/tmp" ]]; then
     rm -v $JDK_FILE
 fi
 
-echo -e "\nPlease manual edit /etc/profile to set JAVA_HOME, JRE_HOME and PATH\n"
-sleep 2
+if [ -d /etc/profile.d ]; then
+    echo "Setting JAVA_HOME, JRE_HOME, PATH to /etc/profile.d/java.sh"
+    echo "
+JAVA_HOME=$DEST/$JAVA_VER
+JRE_HOME=$JAVA_HOME/jre
 
-if which vim 1>/dev/null 2>&1; then
-    vim /etc/profile
+PATH=$JAVA_HOME/bin:$JRE_HOME/bin:$PATH
+
+export JAVA_HOME JRE_HOME PATH" > /etc/profile.d/java.sh
+
 else
-    vi /etc/profile
+
+    echo -e "\nPlease manual edit /etc/profile to set JAVA_HOME, JRE_HOME and PATH\n"
+    sleep 2
+
+    if which vim 1>/dev/null 2>&1; then
+        vim /etc/profile
+    else
+        vi /etc/profile
+    fi
 fi
 
 source /etc/profile
@@ -73,19 +86,19 @@ java -version
 javac -version
 echo -e "\n"
 
-read -p "Would you like to delete other versions of java in $DEST? (y/n) " ANS_DEL
-if [[ x$ANS_DEL == xy ]]; then
+read -p "Would you like to delete other versions of java in $DEST? (y/n) [y] " ANS_DEL
+if [[ x$ANS_DEL == xy ]] || [ -z $ANSDEL ]; then
     for file in $DEST/*; do
         if [ -d $file ] && [[ $(basename $file) != $JAVA_VER ]] || [ -f $file ] && [[ $(basename $JDK_FILE) != $(basename $file) ]]; then
-            rm -rv $file
+            rm -r $file
         fi
     done
 fi
 
 if [ "$(which firefox 2>/dev/null)" ]; then
-    read -p "You have Firefox installed, would you like to install plugin for Firefox? (y/n) " ANS_F
-    if [ x$ANS_F = xy ]; then
-        read -p "Please enter the firefox-plugin path (press [ENTER] for /usr/lib/mozilla/plugins) " F_PLG_PATH
+    read -p "You have Firefox installed, would you like to install plugin for Firefox? (y/n) [y] " ANS_F
+    if [[ x$ANS_F == xy ]] || [ -z $ANS_F ]; then
+        read -p "Please enter the firefox-plugin path [/usr/lib/mozilla/plugins] " F_PLG_PATH
         [[ $F_PLG_PATH == "" ]] && F_PLG_PATH="/usr/lib/mozilla/plugins"
         mkdir -pv $F_PLG_PATH
         sudo ln -svf $DEST/$JAVA_VER/jre/lib/amd64/libnpjp2.so $F_PLG_PATH
