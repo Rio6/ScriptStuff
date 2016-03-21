@@ -34,6 +34,14 @@ fi
 echo "Installing java $JAVA_VER"
 
 JDK_FILE=$(realpath $1);
+
+if [ -f $DEST ]; then
+    rm -v $DEST
+fi
+if [ ! -e $DEST ]; then
+    mkdir -v $DEST
+fi
+
 cp -v $JDK_FILE $DEST
 
 if [ "$(ls -A $DEST/$JAVA_VER 2> /dev/null)" ]; then
@@ -61,12 +69,13 @@ fi
 if [ -d /etc/profile.d ]; then
     echo "Setting JAVA_HOME, JRE_HOME, PATH to /etc/profile.d/java.sh"
     echo "
-JAVA_HOME=$DEST/$JAVA_VER
+JAVA_HOME=$DEST/$JAVA_VER"'
 JRE_HOME=$JAVA_HOME/jre
 
 PATH=$JAVA_HOME/bin:$JRE_HOME/bin:$PATH
 
-export JAVA_HOME JRE_HOME PATH" > /etc/profile.d/java.sh
+export JAVA_HOME JRE_HOME PATH' > /etc/profile.d/java.sh
+chmod 755 /etc/profile.d/java.sh
 
 else
 
