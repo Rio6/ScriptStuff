@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # This script will install Oracle Java in your computer.
 # This was wirtten for Arch Linux, if you need for other distributions, you may need to change something.
@@ -14,7 +14,7 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-if [[ $# < 1 ]]; then
+if [ $# = 0 ]; then
     echo "Usage: $0 <jdk_file>"
     exit 1
 fi
@@ -46,7 +46,7 @@ cp -v $JDK_FILE $DEST
 
 if [ "$(ls -A $DEST/$JAVA_VER 2> /dev/null)" ]; then
     read -p "$DEST/$JAVA_VER containing files, do you want to delete them? (y/n) [n] " ANS
-    if [[ x$ANS = xy ]]; then
+    if [ x$ANS = xy ]; then
         echo "Deleting files..."
         rm -r "$DEST/$JAVA_VER"
     else
@@ -61,7 +61,7 @@ cd $DEST
 echo Extracting $JDK_FILE to $DEST...
 tar -xf $(basename $JDK_FILE)
 
-if [[ $(dirname $JDK_FILE) == "/tmp" ]]; then
+if [ $(dirname $JDK_FILE) = "/tmp" ]; then
     echo "Deleting $JDK_FILE"
     rm -v $JDK_FILE
 fi
@@ -96,9 +96,9 @@ javac -version
 echo -e "\n"
 
 read -p "Would you like to delete other versions of java in $DEST? (y/n) [y] " ANS_DEL
-if [[ x$ANS_DEL == xy ]] || [ -z $ANSDEL ]; then
+if [ x$ANS_DEL = xy ] || [ -z $ANSDEL ]; then
     for file in $DEST/*; do
-        if [ -d $file ] && [[ $(basename $file) != $JAVA_VER ]] || [ -f $file ] && [[ $(basename $JDK_FILE) != $(basename $file) ]]; then
+        if [ -d $file ] && [ $(basename $file) != $JAVA_VER ] || [ -f $file ] && [ $(basename $JDK_FILE) != $(basename $file) ]; then
             rm -r $file
         fi
     done
@@ -106,9 +106,9 @@ fi
 
 if [ "$(which firefox 2>/dev/null)" ]; then
     read -p "You have Firefox installed, would you like to install plugin for Firefox? (y/n) [y] " ANS_F
-    if [[ x$ANS_F == xy ]] || [ -z $ANS_F ]; then
+    if [ x$ANS_F = xy ] || [ -z $ANS_F ]; then
         read -p "Please enter the firefox-plugin path [/usr/lib/mozilla/plugins] " F_PLG_PATH
-        [[ $F_PLG_PATH == "" ]] && F_PLG_PATH="/usr/lib/mozilla/plugins"
+        [ -z $F_PLG_PATH ] && F_PLG_PATH="/usr/lib/mozilla/plugins"
         mkdir -pv $F_PLG_PATH
         sudo ln -svf $DEST/$JAVA_VER/jre/lib/amd64/libnpjp2.so $F_PLG_PATH
     fi
