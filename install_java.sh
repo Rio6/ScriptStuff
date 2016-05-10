@@ -6,9 +6,6 @@
 # Arthor: Rio
 # 2016/2/21
 
-# Exit when error
-set -e
-
 # Change DEST to chage the installation location.
 DEST="/usr/local/java"
 
