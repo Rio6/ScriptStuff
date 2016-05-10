@@ -6,6 +6,9 @@
 # Arthor: Rio
 # 2016/2/21
 
+# Exit when error
+set -e
+
 # Change DEST to chage the installation location.
 DEST="/usr/local/java"
 
@@ -61,11 +64,6 @@ cd $DEST
 echo Extracting $JDK_FILE to $DEST...
 tar -xf $(basename $JDK_FILE)
 
-if [ $(dirname $JDK_FILE) = "/tmp" ]; then
-    echo "Deleting $JDK_FILE"
-    rm -v $JDK_FILE
-fi
-
 if [ -d /etc/profile.d ]; then
     echo "Setting JAVA_HOME, JRE_HOME, PATH to /etc/profile.d/java.sh"
     echo "
@@ -100,6 +98,7 @@ if [ x$ANS_DEL = xy ] || [ -z $ANSDEL ]; then
     for file in $DEST/*; do
         if [ -d $file ] && [ $(basename $file) != $JAVA_VER ] || [ -f $file ] && [ $(basename $JDK_FILE) != $(basename $file) ]; then
             rm -r $file
+            echo "Removed $file"
         fi
     done
 fi
