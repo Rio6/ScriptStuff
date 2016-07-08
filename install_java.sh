@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This script will install Oracle Java in your computer.
 # This was wirtten for Arch Linux, if you need for other distributions, you may need to change something.
