@@ -1,2 +1,2 @@
-# UselessStuff
-Put everything else in this
+# UsefulStuff
+Put some useful scripts in here
