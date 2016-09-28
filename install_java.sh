@@ -40,6 +40,7 @@ firefox_plugin() {
         read -p "You have Firefox installed, would you like to install plugin for Firefox? (y/n) [y] " ANS_F
         if [ x$ANS_F = xy ] || [ -z $ANS_F ]; then
             [ $ARCH == x64 ] && DFT_PLG_PATH="/usr/lib64/mozilla/plugins" || DFT_PLG_PATH="/usr/lib/mozilla/plugins"
+            DFT_PLG_PATH=${MOZ_PLUGIN_PATH:-$DFT_PLG_PATH}
             read -p "Please enter the firefox-plugin path [$DFT_PLG_PATH] " F_PLG_PATH
             if [ -z $F_PLG_PATH ]; then
                 if [ $ARCH == x64 ]; then 
