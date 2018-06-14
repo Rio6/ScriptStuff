@@ -6,7 +6,6 @@ pkgbase = adwaita-dark
 	arch = i686
 	arch = x86_64
 	license = GPL
-	makedepends = pkgconfig
 	depends = gtk2
 	source = https://dl.opendesktop.org/api/files/download/id/1462546831/175933-AdwaitaDark.tar.gz
 	md5sums = dde4aa65fc13ea5c7cfff65000e09b58
