@@ -1,16 +1,18 @@
 #!/bin/sh
 #wait for internet
-while ! ping -q -w 1 -c 1 `ip r | grep default | cut -d ' ' -f 3` > /dev/null; do sleep 5; done
+while ! ping -q -w 1 -c 1 apod.nasa.gov > /dev/null; do sleep 5; done
 
 html=$(curl https://apod.nasa.gov/apod/astropix.html)
-imgurl=$(echo https://apod.nasa.gov/$(grep -Eio "image.*(jpg|png|gif)" <<< "$html" | head -n 1))
-if [ ! -z $imgurl ]; then
-    curl  "$imgurl" | feh --bg-max --no-fehbg - && exit
-fi
 
-yturl=$(grep -Eo "https://www.youtube.com/embed/[a-zA-Z0-9_]+" <<< "$html")
+yturl=$(grep -Eom1 "https://www.youtube.com/embed/[^\"]+" <<< "$html")
 if [ ! -z $yturl ]; then
-    youtube-dl $yturl -o /tmp/apod
+    youtube-dl "$yturl" -o /tmp/apod
     name=$(echo /tmp/apod.* | cut -f 1 -d ' ')
     mplayer -rootwin -fs -nosound -loop 0 -nostop-xscreensaver $name
+fi
+
+imgpath=$(grep -Eio "image.*(jpg|png|gif)" <<< "$html" | head -n 1)
+if [ ! -z $imgpath ]; then
+    curl  "https://apod.nasa.gov/$imgpath" | feh --bg-max --no-fehbg - && exit
+    exit
 fi
