@@ -1,0 +1,23 @@
+pkgbase = fluidsynth-dssi
+	pkgdesc = A FluidSynth soundfont-playing plugin
+	pkgver = 1.0.0
+	pkgrel = 1
+	url = http://dssi.sourceforge.net/download.html#FluidSynth-DSSI
+	arch = i686
+	arch = x86_64
+	license = LGPL
+	makedepends = dssi
+	makedepends = alsa-lib
+	makedepends = pkgconfig
+	makedepends = automake
+	makedepends = autoconf
+	depends = liblo>=0.12
+	depends = fluidsynth
+	depends = ladspa
+	depends = gtk
+	optdepends = xsynth-dssi: DSSI host
+	source = https://phoenixnap.dl.sourceforge.net/project/dssi/fluidsynth-dssi/1.0.0/fluidsynth-dssi-1.0.0.tar.gz
+	md5sums = 6c9f660f0df4d2aad5076de75b2a0a67
+
+pkgname = fluidsynth-dssi
+
