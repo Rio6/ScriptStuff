@@ -1,0 +1,9 @@
+#!/bin/bash
+#wait for internet
+while ! ping -q -w 1 -c 1 www.xkcd.com > /dev/null; do sleep 5; done
+
+html=$(curl -L https://c.xkcd.com/random/comic/)
+imgurl=$(grep -Eio "imgs.xkcd.com/comics/[a-z_]+.png" <<< "$html" | head -n 1)
+if [ ! -z $imgurl ]; then
+    curl  "$imgurl" | feh --bg-max --no-fehbg - && exit
+fi
