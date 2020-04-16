@@ -1,0 +1,78 @@
+#!/bin/sh
+# A script to record a screen area using ffmpeg
+while getopts hwsmo:a opts; do
+    case $opts in
+        h)
+            echo "$0 [-w | -s] [-o dir] [-m]"
+            exit
+            ;;
+        w)
+            echo "Select win"
+            info=$(xwininfo)
+            w=$(awk '/Width/{ print $2}' <<< $info)
+            h=$(awk '/Height/{ print $2}' <<< $info)
+            x=$(awk '/Absolute upper-left X:/{print $4}' <<< $info)
+            y=$(awk '/Absolute upper-left Y:/{print $4}' <<< $info)
+            ;;
+        s)
+            echo "Select area"
+            info=( $(slop -f "%w %h %x %y") )
+            w=${info[0]}
+            h=${info[1]}
+            x=${info[2]}
+            y=${info[3]}
+            ;;
+        m)
+            mute=true
+            ;;
+        o)
+            outdir="$OPTARG"
+            ;;
+    esac
+done
+
+if [ -z "$w" -o -z "$h" -o -z "$x" -o -z "$y" ]; then
+    info=$(xwininfo -root)
+    w=$(awk '/Width/{ print $2}' <<< $info)
+    h=$(awk '/Height/{ print $2}' <<< $info)
+    x=$(awk '/Absolute upper-left X:/{print $4}' <<< $info)
+    y=$(awk '/Absolute upper-left Y:/{print $4}' <<< $info)
+fi
+
+if [ -z "$outdir" ]; then
+    outdir=~/Videos
+fi
+
+outfile="$outdir/recording-$(date -d now "+%F-%H-%M-%S")"
+
+capture_x11() {
+    ffmpeg -f x11grab -video_size "${w}x${h}" -framerate 30 -show_region 1 -region_border 2 -i ":0.0+$x,$y" -c:v libx264 -preset ultrafast "$1"
+}
+
+connect_jack() {
+    # wait until jack client is available
+    while ! jack_lsp | grep screenrecord:input &> /dev/null; do :; done
+    # connect clients
+    jack_connect "PulseAudio JACK Sink:front-left" screenrecord:input_1
+    jack_connect "PulseAudio JACK Sink:front-right" screenrecord:input_2
+}
+
+if [ "$mute" != true ]; then
+    # record audio in bg
+    ffmpeg -nostdin -f jack -channels 2 -i screenrecord -c:a aac "${outfile}-audio.m4a" &
+    pid=$!
+
+    connect_jack &
+
+    # record video
+    capture_x11 "${outfile}-video.mp4"
+
+    # stop recording audio
+    kill $pid; wait $pid
+
+    ffmpeg -i "${outfile}-video.mp4" -i "${outfile}-audio.m4a" -c copy "$outfile.mp4"
+
+    rm "${outfile}-video.mp4" "${outfile}-audio.m4a"
+else
+    capture_x11 "${outfile}.mp4"
+fi
